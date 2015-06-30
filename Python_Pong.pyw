@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+#programa pong
 import pygame
 from pygame.locals import *
 from random import randint
