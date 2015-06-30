@@ -3,6 +3,7 @@
 import pygame
 from pygame.locals import *
 from random import randint
+import os.path
 
 class punto:
 	def __init__(self, x, y):
@@ -52,6 +53,16 @@ pygame.init()
 ventana = pygame.display.set_mode([ANCHO_VENTANA, ALTO_VENTANA],0,32)
 pygame.display.set_caption("Python_Pong")
 
+sonidos = False
+
+if os.path.exists("sounds/pong_bep.ogg") and os.path.exists("sounds/pong_plop.ogg"):
+	sonido_bep = pygame.mixer.Sound("sounds/pong_bep.ogg")
+	sonido_plop = pygame.mixer.Sound("sounds/pong_plop.ogg")
+	sonido_bep.set_volume(0.1)
+	sonido_plop.set_volume(0.1)
+	sonidos = True
+	
+
 #BUCLE DE XOGO
 
 pausa_bola = 0
@@ -60,7 +71,8 @@ ON = True
 
 while ON:
 
-	tempo_0 = pygame.time.get_ticks()
+	#tempo_0 = pygame.time.get_ticks()
+	reloj = pygame.time.Clock()
 	
 	#DEBUXAR:
 	
@@ -112,6 +124,8 @@ while ON:
 	punto_bola = punto(punto_bola.x,min(ALTO_VENTANA-ALTO_BOLA,punto_bola.y))
 	
 	if punto_bola.x+ANCHO_BOLA*2 < 0 or punto_bola.x > ANCHO_VENTANA+ANCHO_BOLA:
+		if sonidos:
+			sonido_plop.play()
 		if punto_bola.x+ANCHO_BOLA*2 < 0:
 			puntuacion_dereita += 1
 		if punto_bola.x > ANCHO_VENTANA+ANCHO_BOLA:
@@ -138,29 +152,34 @@ while ON:
 	y_raqueta_dereita = max(0,y_raqueta_dereita)
 	y_raqueta_dereita = min(ALTO_VENTANA-ALTO_RAQUETA,y_raqueta_dereita)
 	
-	#COLISIÃ“NS:
+	#COLISIÓNS:
 	
 		#PAREDES:
 	
 	if punto_bola.y <= 0 or punto_bola.y >= ALTO_VENTANA - ANCHO_BOLA:
 		VELOCIDADE_BOLA_Y = -VELOCIDADE_BOLA_Y
+		if sonidos:
+			sonido_bep.play()
 	
 		#RAQUETA ESQUERDA:
 	
 	if (punto_bola.x > 0 and punto_bola.x <= ANCHO_RAQUETA) and (y_raqueta_esquerda <= (punto_bola.y+ANCHO_BOLA) and (y_raqueta_esquerda+ALTO_RAQUETA) >= punto_bola.y) and VELOCIDADE_BOLA_X < 0:
 		VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
+		if sonidos:
+			sonido_bep.play()
 		
 		#RAQUETA DEREITA:
 		
 	if (punto_bola.x < ANCHO_VENTANA-ANCHO_BOLA and punto_bola.x >= ANCHO_VENTANA-(ANCHO_BOLA+ANCHO_RAQUETA)) and (y_raqueta_dereita <= (punto_bola.y+ANCHO_BOLA) and (y_raqueta_dereita+ALTO_RAQUETA) >= punto_bola.y) and VELOCIDADE_BOLA_X > 0:
 		VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
+		if sonidos:
+			sonido_bep.play()
 			
 	for eventos in pygame.event.get():
 		if eventos.type == pygame.QUIT:
 			pygame.display.quit()
 			ON = False
 	
-	tempo_frame = pygame.time.get_ticks() - tempo_0
-	pygame.time.wait(max(0,pausa_ticks - tempo_frame))
-	
-	
+	#tempo_frame = pygame.time.get_ticks() - tempo_0
+	#pygame.time.wait(max(0,pausa_ticks - tempo_frame))
+	reloj.tick(60)
