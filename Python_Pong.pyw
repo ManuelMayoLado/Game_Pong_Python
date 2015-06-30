@@ -126,7 +126,7 @@ while ON:
 			
 	#MOVEMENTO DA RAQUETA DEREITA:
 	
-	VELOCIDADE_RAQUETA_DEREITA = 3
+	VELOCIDADE_RAQUETA_DEREITA = 4
 	
 	if y_raqueta_dereita < punto_bola.y and punto_bola.x >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
 		y_raqueta_dereita += VELOCIDADE_RAQUETA_DEREITA
