@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 from random import randint
 import os.path
+import math
 
 class punto:
 	def __init__(self, x, y):
@@ -27,14 +28,21 @@ x_raqueta_dereita = ANCHO_VENTANA - ANCHO_RAQUETA
 	
 punto_bola = punto((ANCHO_VENTANA-ANCHO_BOLA)/2,(ALTO_VENTANA-ALTO_BOLA)/2)
 
-VELOCIDADE_BOLA_X = 5
+VELOCIDADE_BOLA_TOTAL = 7
+
+VELOCIDADE_BOLA_Y = 2
+
+def calc_vel_x():
+	return VELOCIDADE_BOLA_TOTAL * (math.sin(math.radians(90 - math.degrees(math.asin(VELOCIDADE_BOLA_Y/float(VELOCIDADE_BOLA_TOTAL))))))
+
+VELOCIDADE_BOLA_X = calc_vel_x()
 
 puntuacion_esquerda = puntuacion_dereita = 0
 
 if randint(0,1) == 1:
 	VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
 	
-VELOCIDADE_BOLA_Y = 5
+VELOCIDADE_MAX_BOLA_Y = 5
 
 if randint(0,1) == 1:
 	VELOCIDADE_BOLA_Y = -VELOCIDADE_BOLA_Y
@@ -42,9 +50,9 @@ if randint(0,1) == 1:
 ancho_cadrados_centrales = 2
 separacion_cadrados_centrales = 5
 
-TICS_SEGUNDO = 60
+TICKS_SEGUNDO = 60
 
-pausa_ticks = 1000 // TICS_SEGUNDO
+pausa_ticks = 1000 // TICKS_SEGUNDO
 
 #INICIAR PYGAME
 
@@ -61,11 +69,20 @@ if os.path.exists("sounds/pong_bep.ogg") and os.path.exists("sounds/pong_plop.og
 	sonido_bep.set_volume(0.1)
 	sonido_plop.set_volume(0.1)
 	sonidos = True
-	
+
+#FUNCIÓN PARA CALCULAR DIRECCIÓN DA BOLA DESPOIS DE UN CHOQUE:
+
+def calcular_direccion(bola_y,y_raqueta_esq,vel_bola_y):
+	VEL_Y = VELOCIDADE_BOLA_Y
+	choque_altura = (bola_y+ANCHO_BOLA) - y_raqueta_esq
+	VEL_Y = (((choque_altura * 100)/ALTO_RAQUETA) * 0.1) - VELOCIDADE_MAX_BOLA_Y
+	VEL_Y = max(-VELOCIDADE_MAX_BOLA_Y, VEL_Y)
+	VEL_Y = min(VELOCIDADE_MAX_BOLA_Y, VEL_Y)
+	return VEL_Y
 
 #BUCLE DE XOGO
 
-pausa_bola = 0
+pausa_bola = 30
 
 ON = True
 
@@ -77,12 +94,13 @@ while ON:
 	#DEBUXAR:
 	
 	ventana.fill((0,0,0))
-		
+	
 	imagen_raqueta_esq = pygame.Rect(x_raqueta_esquerda,y_raqueta_esquerda,ANCHO_RAQUETA,ALTO_RAQUETA)
 	pygame.draw.rect(ventana, (255,255,255), imagen_raqueta_esq)
 		
 	imagen_raqueta_der = pygame.Rect(x_raqueta_dereita,y_raqueta_dereita,ANCHO_RAQUETA,ALTO_RAQUETA)
 	pygame.draw.rect(ventana, (255,255,255), imagen_raqueta_der)
+	
 	
 	for i in range(1, ALTO_VENTANA, separacion_cadrados_centrales):
 		pygame.draw.rect(ventana, (255,255,255), pygame.Rect((ANCHO_VENTANA-ancho_cadrados_centrales)/2,i,ancho_cadrados_centrales,ancho_cadrados_centrales))
@@ -96,8 +114,7 @@ while ON:
 		
 	imagen_bola = pygame.Rect(punto_bola.x,punto_bola.y,ANCHO_BOLA,ALTO_BOLA)
 	pygame.draw.rect(ventana, (255,255,255), imagen_bola)
-	
-	pygame.display.update()
+	pygame.draw.rect(ventana, (255,255,255), imagen_bola)
 	
 	#--
 	
@@ -134,8 +151,10 @@ while ON:
 		punto_bola = punto((ANCHO_VENTANA-ANCHO_BOLA)/2,(ALTO_VENTANA-ALTO_BOLA)/2)
 		if randint(0,1) == 1:
 			VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
+		VELOCIDADE_BOLA_Y = 2
 		if randint(0,1) == 1:
 			VELOCIDADE_BOLA_Y = -VELOCIDADE_BOLA_Y
+		VELOCIDADE_BOLA_X = calc_vel_x()
 	
 			
 	#MOVEMENTO DA RAQUETA DEREITA:
@@ -156,16 +175,26 @@ while ON:
 	
 		#PAREDES:
 	
-	if punto_bola.y <= 0 or punto_bola.y >= ALTO_VENTANA - ANCHO_BOLA:
+	if punto_bola.y <= 0 and VELOCIDADE_BOLA_Y < 0:
 		VELOCIDADE_BOLA_Y = -VELOCIDADE_BOLA_Y
 		if sonidos:
+			pygame.mixer.stop()
+			sonido_bep.play()
+			
+	if punto_bola.y >= ALTO_VENTANA - ANCHO_BOLA and VELOCIDADE_BOLA_Y > 0:
+		VELOCIDADE_BOLA_Y = -VELOCIDADE_BOLA_Y
+		if sonidos:
+			pygame.mixer.stop()
 			sonido_bep.play()
 	
 		#RAQUETA ESQUERDA:
 	
 	if (punto_bola.x > 0 and punto_bola.x <= ANCHO_RAQUETA) and (y_raqueta_esquerda <= (punto_bola.y+ANCHO_BOLA) and (y_raqueta_esquerda+ALTO_RAQUETA) >= punto_bola.y) and VELOCIDADE_BOLA_X < 0:
 		VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
+		VELOCIDADE_BOLA_Y = calcular_direccion(punto_bola.y,y_raqueta_esquerda,VELOCIDADE_BOLA_Y)
+		VELOCIDADE_BOLA_X = calc_vel_x()
 		if sonidos:
+			pygame.mixer.stop()
 			sonido_bep.play()
 		
 		#RAQUETA DEREITA:
@@ -173,6 +202,7 @@ while ON:
 	if (punto_bola.x < ANCHO_VENTANA-ANCHO_BOLA and punto_bola.x >= ANCHO_VENTANA-(ANCHO_BOLA+ANCHO_RAQUETA)) and (y_raqueta_dereita <= (punto_bola.y+ANCHO_BOLA) and (y_raqueta_dereita+ALTO_RAQUETA) >= punto_bola.y) and VELOCIDADE_BOLA_X > 0:
 		VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
 		if sonidos:
+			pygame.mixer.stop()
 			sonido_bep.play()
 			
 	for eventos in pygame.event.get():
@@ -180,6 +210,8 @@ while ON:
 			pygame.display.quit()
 			ON = False
 	
+	pygame.display.update()
+	
 	#tempo_frame = pygame.time.get_ticks() - tempo_0
 	#pygame.time.wait(max(0,pausa_ticks - tempo_frame))
-	reloj.tick(60)
+	reloj.tick(TICKS_SEGUNDO)
