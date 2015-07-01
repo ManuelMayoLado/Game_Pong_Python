@@ -149,12 +149,12 @@ while ON:
 			puntuacion_esquerda += 1
 		pausa_bola = 20
 		punto_bola = punto((ANCHO_VENTANA-ANCHO_BOLA)/2,(ALTO_VENTANA-ALTO_BOLA)/2)
-		if randint(0,1) == 1:
-			VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
 		VELOCIDADE_BOLA_Y = 2
 		if randint(0,1) == 1:
 			VELOCIDADE_BOLA_Y = -VELOCIDADE_BOLA_Y
 		VELOCIDADE_BOLA_X = calc_vel_x()
+		if randint(0,1) == 1:
+			VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
 	
 			
 	#MOVEMENTO DA RAQUETA DEREITA:
