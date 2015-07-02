@@ -56,6 +56,7 @@ pausa_ticks = 1000 // TICKS_SEGUNDO
 
 #INICIAR PYGAME
 
+pygame.mixer.pre_init (44100, -16, 2, 512)
 pygame.init()
 
 ventana = pygame.display.set_mode([ANCHO_VENTANA, ALTO_VENTANA],0,32)
