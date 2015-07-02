@@ -72,9 +72,9 @@ if os.path.exists("sounds/pong_bep.ogg") and os.path.exists("sounds/pong_plop.og
 
 #FUNCIÓN PARA CALCULAR DIRECCIÓN DA BOLA DESPOIS DE UN CHOQUE:
 
-def calcular_direccion(bola_y,y_raqueta_esq,vel_bola_y):
+def calcular_direccion(bola_y,y_raqueta,vel_bola_y):
 	VEL_Y = VELOCIDADE_BOLA_Y
-	choque_altura = (bola_y+ANCHO_BOLA) - y_raqueta_esq
+	choque_altura = (bola_y+ANCHO_BOLA) - y_raqueta
 	VEL_Y = (((choque_altura * 100)/ALTO_RAQUETA) * 0.1) - VELOCIDADE_MAX_BOLA_Y
 	VEL_Y = max(-VELOCIDADE_MAX_BOLA_Y, VEL_Y)
 	VEL_Y = min(VELOCIDADE_MAX_BOLA_Y, VEL_Y)
@@ -82,7 +82,7 @@ def calcular_direccion(bola_y,y_raqueta_esq,vel_bola_y):
 
 #BUCLE DE XOGO
 
-pausa_bola = 30
+pausa_bola = 60
 
 ON = True
 
@@ -161,9 +161,9 @@ while ON:
 	
 	VELOCIDADE_RAQUETA_DEREITA = 4
 	
-	if y_raqueta_dereita < punto_bola.y and punto_bola.x >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
+	if y_raqueta_dereita+((ALTO_RAQUETA/2)+VELOCIDADE_RAQUETA_DEREITA) < punto_bola.y+(ANCHO_BOLA/2) and punto_bola.x+(ANCHO_BOLA/2) >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
 		y_raqueta_dereita += VELOCIDADE_RAQUETA_DEREITA
-	elif y_raqueta_dereita > punto_bola.y and punto_bola.x >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
+	elif y_raqueta_dereita+((ALTO_RAQUETA/2)-VELOCIDADE_RAQUETA_DEREITA) > punto_bola.y+(ANCHO_BOLA/2) and punto_bola.x+(ANCHO_BOLA/2) >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
 		y_raqueta_dereita -= VELOCIDADE_RAQUETA_DEREITA
 	else:
 		y_raqueta_dereita
@@ -190,7 +190,6 @@ while ON:
 		#RAQUETA ESQUERDA:
 	
 	if (punto_bola.x > 0 and punto_bola.x <= ANCHO_RAQUETA) and (y_raqueta_esquerda <= (punto_bola.y+ANCHO_BOLA) and (y_raqueta_esquerda+ALTO_RAQUETA) >= punto_bola.y) and VELOCIDADE_BOLA_X < 0:
-		VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
 		VELOCIDADE_BOLA_Y = calcular_direccion(punto_bola.y,y_raqueta_esquerda,VELOCIDADE_BOLA_Y)
 		VELOCIDADE_BOLA_X = calc_vel_x()
 		if sonidos:
@@ -200,7 +199,8 @@ while ON:
 		#RAQUETA DEREITA:
 		
 	if (punto_bola.x < ANCHO_VENTANA-ANCHO_BOLA and punto_bola.x >= ANCHO_VENTANA-(ANCHO_BOLA+ANCHO_RAQUETA)) and (y_raqueta_dereita <= (punto_bola.y+ANCHO_BOLA) and (y_raqueta_dereita+ALTO_RAQUETA) >= punto_bola.y) and VELOCIDADE_BOLA_X > 0:
-		VELOCIDADE_BOLA_X = -VELOCIDADE_BOLA_X
+		VELOCIDADE_BOLA_Y = calcular_direccion(punto_bola.y,y_raqueta_dereita,VELOCIDADE_BOLA_Y)
+		VELOCIDADE_BOLA_X = -calc_vel_x()
 		if sonidos:
 			pygame.mixer.stop()
 			sonido_bep.play()
