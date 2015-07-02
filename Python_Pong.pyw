@@ -64,6 +64,7 @@ pygame.display.set_caption("Python_Pong")
 sonidos = False
 
 if os.path.exists("sounds/pong_bep.ogg") and os.path.exists("sounds/pong_plop.ogg"):
+	pygame.mixer.init(frequency=44050, size=-16, channels=2, buffer=1024)
 	sonido_bep = pygame.mixer.Sound("sounds/pong_bep.ogg")
 	sonido_plop = pygame.mixer.Sound("sounds/pong_plop.ogg")
 	sonido_bep.set_volume(0.1)
@@ -161,12 +162,13 @@ while ON:
 	
 	VELOCIDADE_RAQUETA_DEREITA = 4
 	
-	if y_raqueta_dereita+((ALTO_RAQUETA/2)+VELOCIDADE_RAQUETA_DEREITA) < punto_bola.y+(ANCHO_BOLA/2) and punto_bola.x+(ANCHO_BOLA/2) >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
-		y_raqueta_dereita += VELOCIDADE_RAQUETA_DEREITA
-	elif y_raqueta_dereita+((ALTO_RAQUETA/2)-VELOCIDADE_RAQUETA_DEREITA) > punto_bola.y+(ANCHO_BOLA/2) and punto_bola.x+(ANCHO_BOLA/2) >= ANCHO_VENTANA/2 and VELOCIDADE_BOLA_X > 0:
-		y_raqueta_dereita -= VELOCIDADE_RAQUETA_DEREITA
-	else:
-		y_raqueta_dereita
+	if (VELOCIDADE_BOLA_X > 0 and punto_bola.x+(ANCHO_BOLA/2) >= ANCHO_VENTANA/2) or pausa_bola > 0:
+		if y_raqueta_dereita+((ALTO_RAQUETA/2)+(VELOCIDADE_RAQUETA_DEREITA*2)) < punto_bola.y+(ANCHO_BOLA/2):
+			y_raqueta_dereita += VELOCIDADE_RAQUETA_DEREITA
+		elif y_raqueta_dereita+((ALTO_RAQUETA/2)-(VELOCIDADE_RAQUETA_DEREITA*2)) > punto_bola.y+(ANCHO_BOLA/2):
+			y_raqueta_dereita -= VELOCIDADE_RAQUETA_DEREITA
+		else:
+			y_raqueta_dereita
 	
 	y_raqueta_dereita = max(0,y_raqueta_dereita)
 	y_raqueta_dereita = min(ALTO_VENTANA-ALTO_RAQUETA,y_raqueta_dereita)
@@ -205,12 +207,12 @@ while ON:
 			pygame.mixer.stop()
 			sonido_bep.play()
 			
+	pygame.display.update() #ACTUALIZAR PANTALLA
+	
 	for eventos in pygame.event.get():
 		if eventos.type == pygame.QUIT:
 			pygame.display.quit()
 			ON = False
-	
-	pygame.display.update()
 	
 	#tempo_frame = pygame.time.get_ticks() - tempo_0
 	#pygame.time.wait(max(0,pausa_ticks - tempo_frame))
