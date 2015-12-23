@@ -84,7 +84,7 @@ def calcular_direccion(bola_y,y_raqueta,vel_bola_y):
 
 #BUCLE DE XOGO
 
-pausa_bola = 60
+pausa_bola = 80
 
 ON = True
 
@@ -149,7 +149,7 @@ while ON:
 			puntuacion_dereita += 1
 		if punto_bola.x > ANCHO_VENTANA+ANCHO_BOLA:
 			puntuacion_esquerda += 1
-		pausa_bola = 20
+		pausa_bola = 40
 		punto_bola = punto((ANCHO_VENTANA-ANCHO_BOLA)/2,(ALTO_VENTANA-ALTO_BOLA)/2)
 		VELOCIDADE_BOLA_Y = 2
 		if randint(0,1) == 1:
